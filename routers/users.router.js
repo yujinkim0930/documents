@@ -2,7 +2,6 @@ import express from "express";
 import { prisma } from "../models/index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
 
 const router = express.Router();
 
@@ -49,10 +48,10 @@ router.post("/sign-in", async (req, res, next) => {
     {
       userId: user.userId,
     },
-    "custom-secret-key"
+    "custom-secret-key",
+    { expiresIn: "12h" }
   );
 
-  // authotization 쿠키에 Berer 토큰 형식으로 JWT를 저장합니다.
   res.cookie("authorization", `Bearer ${token}`);
   return res.status(200).json({ message: "로그인 성공" });
 });

@@ -22,7 +22,6 @@ model Posts {
   userId    Int      @map("userId")
   title     String   @map("title")
   content   String   @map("content")
-  writer    String
   status    String   @default("APPLY") @map("status")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")

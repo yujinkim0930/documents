@@ -27,7 +27,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24, //1일동안 쿠키 사용하도록 설정
+      maxAge: 1000 * 60 * 60 * 12, //1일동안 쿠키 사용하도록 설정
     },
     store: sessionStore,
   })
