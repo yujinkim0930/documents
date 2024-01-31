@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import expressSession from "express-session";
 import expressMySQLSession from "express-mysql-session";
+import UsersRouter from "./routers/users.router.js";
+import DocumentsRouter from "./routers/documents.router.js";
 
 dotenv.config();
 
@@ -30,6 +32,8 @@ app.use(
     store: sessionStore,
   })
 );
+
+app.use([UsersRouter, DocumentsRouter]);
 
 app.listen(PORT, () => {
   console.log(PORT, "포트로 서버가 열렸어요!");
