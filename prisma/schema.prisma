@@ -30,9 +30,3 @@ model Posts {
   @@index([userId], map: "Posts_userId_fkey")
   @@map("Posts")
 }
-
-model sessions {
-  session_id String  @id @db.VarChar(128)
-  expires    Int     @db.UnsignedInt
-  data       String? @db.MediumText
-}
