@@ -24,6 +24,38 @@ router.post("/documents", needSigninMiddlware, async (req, res, next) => {
   return res.status(201).json({ message: "이력서가 등록되었습니다." });
 });
 
+// 이력서 수정 API
+router.put(
+  "/documents/:postId",
+  needSigninMiddlware,
+  async (req, res, next) => {
+    const { title, content, status } = req.body;
+    const { postId } = req.params;
+    const document = await prisma.posts.findUnique({
+      where: { postId: +postId },
+    });
+    if (!document)
+      return res.status(401).json({ message: "이력서 조회에 실패하였습니다." });
+    const { userId } = req.user;
+    if (document.userId !== userId)
+      return res
+        .status(401)
+        .json({ message: "이력서를 수정할 권한이 없습니다." });
+    await prisma.posts.update({
+      data: {
+        title,
+        content,
+        status,
+      },
+      where: {
+        postId: +postId,
+      },
+    });
+
+    return res.status(200).json({ data: "이력서가 수정되었습니다." });
+  }
+);
+
 // 이력서 삭제 API
 router.delete(
   "/documents/:postId",
