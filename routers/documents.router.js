@@ -47,7 +47,7 @@ router.get("/documents", needSigninMiddlware, async (req, res, next) => {
 router.get("/documents/:postId", async (req, res, next) => {
   const { postId } = req.params;
   if (!postId)
-    return res.status(401).json({ message: "이력서 조회에 실패하였습니다." });
+    return res.status(404).json({ message: "이력서 조회에 실패하였습니다." });
   const post = await prisma.posts.findFirst({
     where: { postId: +postId },
     select: {
@@ -77,7 +77,7 @@ router.put(
       where: { postId: +postId },
     });
     if (!document)
-      return res.status(401).json({ message: "이력서 조회에 실패하였습니다." });
+      return res.status(404).json({ message: "이력서 조회에 실패하였습니다." });
     const { userId } = req.user;
     if (document.userId !== userId)
       return res
