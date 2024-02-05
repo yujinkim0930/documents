@@ -53,9 +53,9 @@ router.get("/documents", async (req, res) => {
       },
     ],
   });
-  documents.forEach((posts) => {
-    posts.name = posts.user.name;
-    delete posts.name;
+  documents.forEach((document) => {
+    document.name = document.user.name;
+    delete document.user;
   });
   return res.status(200).json({ data: documents });
 });
@@ -80,6 +80,8 @@ router.get("/documents/:postId", async (req, res) => {
       createdAt: true,
     },
   });
+  post.name = post.user.name;
+  delete post.user;
   return res.status(200).json({ data: post });
 });
 
