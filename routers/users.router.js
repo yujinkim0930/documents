@@ -9,6 +9,18 @@ const router = express.Router();
 //회원가입 API
 router.post("/sign-up", async (req, res, next) => {
   const { email, password, pwCheck, name } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "이메일을 입력해주세요." });
+  }
+  if (!password) {
+    return res.status(400).json({ message: "비밀번호를 입력해주세요." });
+  }
+  if (!pwCheck) {
+    return res.status(400).json({ message: "비밀번호를 확인해주세요." });
+  }
+  if (!name) {
+    return res.status(400).json({ message: "이름을 확인해주세요." });
+  }
   const isExistUser = await prisma.users.findFirst({
     where: { email },
   });
@@ -38,6 +50,12 @@ router.post("/sign-up", async (req, res, next) => {
 // 로그인 API
 router.post("/sign-in", async (req, res, next) => {
   const { email, password } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "이메일을 입력해주세요." });
+  }
+  if (!password) {
+    return res.status(400).json({ message: "비밀번호를 입력해주세요." });
+  }
   const user = await prisma.users.findFirst({ where: { email } });
 
   if (!user)
