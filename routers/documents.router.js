@@ -25,7 +25,7 @@ router.post("/documents", needSigninMiddlware, async (req, res) => {
 });
 
 // 이력서 전체 목록 조회 API
-router.get("/documents", needSigninMiddlware, async (req, res) => {
+router.get("/documents", async (req, res) => {
   const orderKey = req.query.orderKey ?? "postId";
   const orderValue = req.query.orderValue ?? "desc";
   if (!["postId", "status"].includes(orderKey)) {
@@ -49,16 +49,20 @@ router.get("/documents", needSigninMiddlware, async (req, res) => {
     },
     orderBy: [
       {
-        [orderKey]: orderValue,
+        [orderKey]: orderValue.toLowerCase(),
       },
     ],
+  });
+  documents.forEach((posts) => {
+    posts.name = posts.user.name;
+    delete posts.name;
   });
   return res.status(200).json({ data: documents });
 });
 
 // 이력서 상세 조회 API
 router.get("/documents/:postId", async (req, res) => {
-  const { postId } = req.params;
+  const { postId } = req.params.postId;
   if (!postId)
     return res.status(404).json({ message: "이력서 조회에 실패하였습니다." });
   const post = await prisma.posts.findFirst({
@@ -75,7 +79,6 @@ router.get("/documents/:postId", async (req, res) => {
       createdAt: true,
     },
   });
-
   return res.status(200).json({ data: post });
 });
 
