@@ -26,6 +26,14 @@ router.post("/documents", needSigninMiddlware, async (req, res) => {
 
 // 이력서 전체 목록 조회 API
 router.get("/documents", needSigninMiddlware, async (req, res) => {
+  const orderKey = req.query.orderKey ?? "postId";
+  const orderValue = req.query.orderValue ?? "desc";
+  if (!["postId", "status"].includes(orderKey)) {
+    return res.status(400).json({ message: "orderKey가 올바르지 않습니다." });
+  }
+  if (!["asc", "desc"].includes(orderValue.toLowerCase())) {
+    return res.status(400).json({ message: "orderValue가 올바르지 않습니다." });
+  }
   const documents = await prisma.posts.findMany({
     select: {
       postId: true,
@@ -39,8 +47,13 @@ router.get("/documents", needSigninMiddlware, async (req, res) => {
       status: true,
       createdAt: true,
     },
+    orderBy: [
+      {
+        [orderKey]: orderValue,
+      },
+    ],
   });
-  return res.status(200).json({ documents });
+  return res.status(200).json({ data: documents });
 });
 
 // 이력서 상세 조회 API

@@ -63,16 +63,14 @@ router.post("/sign-in", async (req, res) => {
   if (!(await bcrypt.compare(password, user.password)))
     return res.status(401).json({ message: "비밀번호가 일치하지 않습니다." });
 
-  const token = jwt.sign(
+  const accessToken = jwt.sign(
     {
       userId: user.userId,
     },
     "custom-secret-key",
     { expiresIn: "12h" }
   );
-
-  res.cookie("authorization", `Bearer ${token}`);
-  return res.status(200).json({ message: "로그인 성공" });
+  return res.status(200).json({ accessToken });
 });
 
 router.get("/users", needSigninMiddlware, async (req, res) => {
