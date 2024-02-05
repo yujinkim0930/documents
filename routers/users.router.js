@@ -73,16 +73,13 @@ router.post("/sign-in", async (req, res) => {
   return res.status(200).json({ accessToken });
 });
 
+// 내 정보 조회 API
 router.get("/users", needSigninMiddlware, async (req, res) => {
-  const { userId } = req.user;
-  const user = await prisma.users.findFirst({
-    where: { userId: +userId },
-    select: {
-      email: true,
-      name: true,
-    },
+  const user = res.locals.users;
+  return res.status(200).json({
+    email: user.email,
+    name: user.name,
   });
-  return res.status(200).json({ user });
 });
 
 export default router;
