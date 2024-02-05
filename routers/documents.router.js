@@ -9,14 +9,14 @@ const router = express.Router();
 // 이력서 생성 API
 router.post("/documents", needSigninMiddlware, async (req, res) => {
   const { title, content } = req.body;
-  const { userId } = req.user;
+  const user = res.locals.users;
   if (!title)
     return res.status(400).json({ errorMessage: "제목을 입력해주세요." });
   if (!content)
     return res.status(400).json({ errorMessage: "자기소개를 입력해주세요." });
   const post = await prisma.posts.create({
     data: {
-      userId: +userId,
+      userId: user.userId,
       title: title,
       content: content,
     },
@@ -62,7 +62,7 @@ router.get("/documents", async (req, res) => {
 
 // 이력서 상세 조회 API
 router.get("/documents/:postId", async (req, res) => {
-  const { postId } = req.params.postId;
+  const postId = req.params.postId;
   if (!postId)
     return res.status(404).json({ message: "이력서 조회에 실패하였습니다." });
   const post = await prisma.posts.findFirst({
@@ -76,6 +76,7 @@ router.get("/documents/:postId", async (req, res) => {
           name: true,
         },
       },
+      status: true,
       createdAt: true,
     },
   });
@@ -84,15 +85,33 @@ router.get("/documents/:postId", async (req, res) => {
 
 // 이력서 수정 API
 router.put("/documents/:postId", needSigninMiddlware, async (req, res) => {
+  const user = res.locals.users;
   const { title, content, status } = req.body;
-  const { postId } = req.params;
+  const postId = req.params.postId;
+  if (!title)
+    return res.status(400).json({ errorMessage: "제목을 입력해주세요." });
+  if (!content)
+    return res.status(400).json({ errorMessage: "자기소개를 입력해주세요." });
+  if (!status)
+    return res.status(400).json({ errorMessage: "상태 값을 입력해주세요." });
+  if (
+    ![
+      "APPLY",
+      "DROP",
+      "PASS",
+      "INTERVIEW1",
+      "INTERVIEW2",
+      "FINAL_PASS",
+    ].includes(status)
+  ) {
+    return res.status(400).json({ message: "올바르지 않은 상태 값입니다." });
+  }
   const document = await prisma.posts.findUnique({
     where: { postId: +postId },
   });
-  if (!document)
+  if (!postId)
     return res.status(404).json({ message: "이력서 조회에 실패하였습니다." });
-  const { userId } = req.user;
-  if (document.userId !== userId)
+  if (document.userId !== user.userId)
     return res
       .status(401)
       .json({ message: "이력서를 수정할 권한이 없습니다." });
