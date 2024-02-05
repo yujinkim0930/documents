@@ -7,7 +7,7 @@ import needSigninMiddlware from "../middlwares/need-signin.middlware.js";
 const router = express.Router();
 
 //회원가입 API
-router.post("/sign-up", async (req, res, next) => {
+router.post("/sign-up", async (req, res) => {
   const { email, password, pwCheck, name } = req.body;
   if (!email) {
     return res.status(400).json({ message: "이메일을 입력해주세요." });
@@ -48,7 +48,7 @@ router.post("/sign-up", async (req, res, next) => {
 });
 
 // 로그인 API
-router.post("/sign-in", async (req, res, next) => {
+router.post("/sign-in", async (req, res) => {
   const { email, password } = req.body;
   if (!email) {
     return res.status(400).json({ message: "이메일을 입력해주세요." });
@@ -75,7 +75,7 @@ router.post("/sign-in", async (req, res, next) => {
   return res.status(200).json({ message: "로그인 성공" });
 });
 
-router.get("/users", needSigninMiddlware, async (req, res, next) => {
+router.get("/users", needSigninMiddlware, async (req, res) => {
   const { userId } = req.user;
   const user = await prisma.users.findFirst({
     where: { userId: +userId },
