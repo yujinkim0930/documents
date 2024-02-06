@@ -67,7 +67,7 @@ router.post("/sign-in", async (req, res) => {
     {
       userId: user.userId,
     },
-    "custom-secret-key",
+    process.env.SECRET_KEY,
     { expiresIn: "12h" }
   );
   return res.status(200).json({ accessToken });
