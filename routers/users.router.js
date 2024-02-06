@@ -8,7 +8,10 @@ const router = express.Router();
 
 //회원가입 API
 router.post("/sign-up", async (req, res) => {
-  const { email, client_Id, password, pwCheck, name } = req.body;
+  const { email, client_Id, password, pwCheck, name, grade } = req.body;
+  if (grade && !["user", "admin"].includes(grade)) {
+    return res.status(400).json({ message: "등급이 올바르지 않습니다." });
+  }
   if (!client_Id) {
     if (!email) {
       return res.status(400).json({ message: "이메일을 입력해주세요." });
@@ -48,8 +51,9 @@ router.post("/sign-up", async (req, res) => {
         .json({ errorMessage: "이미 가입된 사용자입니다." });
     }
     await prisma.users.create({
-      data: { client_Id, name },
+      data: { client_Id, name, grade },
     });
+    return res.status(201).json({ client_Id, name });
   } else {
     // email
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -65,11 +69,10 @@ router.post("/sign-up", async (req, res) => {
         .json({ errorMessage: "이미 존재하는 이메일입니다." });
     }
     await prisma.users.create({
-      data: { email, password: hashedPassword, name },
+      data: { email, password: hashedPassword, name, grade },
     });
+    return res.status(201).json({ email, name });
   }
-
-  return res.status(201).json({ email, name });
 });
 
 // 로그인 API

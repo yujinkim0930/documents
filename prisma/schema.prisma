@@ -9,9 +9,10 @@ datasource db {
 
 model Users {
   userId    Int     @id @default(autoincrement()) @map("userId")
-  client_Id String? @db.VarChar(255) @map("client_id")
-  email     String?  @unique @map("email")
-  password  String?  @map("password")
+  client_Id String? @map("client_id") @db.VarChar(255)
+  email     String? @map("email")
+  password  String? @map("password")
+  grade     String  @default("user") @db.VarChar(255)
   name      String  @map("name")
   posts     Posts[]
 

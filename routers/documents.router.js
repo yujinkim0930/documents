@@ -113,7 +113,7 @@ router.put("/documents/:postId", needSigninMiddlware, async (req, res) => {
   });
   if (!postId)
     return res.status(404).json({ message: "이력서 조회에 실패하였습니다." });
-  if (document.userId !== user.userId)
+  if (user.grade === "user" && document.userId !== user.userId)
     return res
       .status(401)
       .json({ message: "이력서를 수정할 권한이 없습니다." });

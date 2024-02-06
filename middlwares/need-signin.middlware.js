@@ -16,7 +16,7 @@ export default async function (req, res, next) {
       throw new Error("인증 정보가 올바르지 않습니다.");
     }
 
-    const token = jwt.verify(tokenValue, "custom-secret-key");
+    const token = jwt.verify(tokenValue, process.env.SECRET_KEY);
     if (!token.userId) {
       throw new Error("인증 정보가 올바르지 않습니다.");
     }
