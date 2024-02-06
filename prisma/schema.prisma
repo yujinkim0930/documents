@@ -8,11 +8,12 @@ datasource db {
 }
 
 model Users {
-  userId   Int     @id @default(autoincrement()) @map("userId")
-  email    String  @unique @map("email")
-  password String  @map("password")
-  name     String  @map("name")
-  posts    Posts[]
+  userId    Int     @id @default(autoincrement()) @map("userId")
+  client_Id String? @db.VarChar(255) @map("client_id")
+  email     String?  @unique @map("email")
+  password  String?  @map("password")
+  name      String  @map("name")
+  posts     Posts[]
 
   @@map("Users")
 }
@@ -29,4 +30,10 @@ model Posts {
 
   @@index([userId], map: "Posts_userId_fkey")
   @@map("Posts")
+}
+
+model sessions {
+  session_id String  @id @db.VarChar(128)
+  expires    Int     @db.UnsignedInt
+  data       String? @db.MediumText
 }

@@ -8,60 +8,97 @@ const router = express.Router();
 
 //회원가입 API
 router.post("/sign-up", async (req, res) => {
-  const { email, password, pwCheck, name } = req.body;
-  if (!email) {
-    return res.status(400).json({ message: "이메일을 입력해주세요." });
-  }
-  if (!password) {
-    return res.status(400).json({ message: "비밀번호를 입력해주세요." });
-  }
-  if (!pwCheck) {
-    return res.status(400).json({ message: "비밀번호를 확인해주세요." });
+  const { email, client_Id, password, pwCheck, name } = req.body;
+  if (!client_Id) {
+    if (!email) {
+      return res.status(400).json({ message: "이메일을 입력해주세요." });
+    }
+    if (!password) {
+      return res.status(400).json({ message: "비밀번호를 입력해주세요." });
+    }
+    if (!pwCheck) {
+      return res.status(400).json({ message: "비밀번호를 확인해주세요." });
+    }
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ errorMessage: "비밀번호는 최소 6자리 이상이어야 합니다." });
+    }
+    if (password !== pwCheck) {
+      return res
+        .status(401)
+        .json({ errorMessage: "비밀번호가 일치하지 않습니다." });
+    }
   }
   if (!name) {
     return res.status(400).json({ message: "이름을 확인해주세요." });
   }
-  const isExistUser = await prisma.users.findFirst({
-    where: { email },
-  });
-  if (isExistUser) {
-    return res
-      .status(409)
-      .json({ errorMessage: "이미 존재하는 이메일입니다." });
+
+  //clientId (kakao)
+  if (client_Id) {
+    const user = await prisma.users.findFirst({
+      where: {
+        client_Id,
+      },
+    });
+
+    if (user) {
+      return res
+        .status(409)
+        .json({ errorMessage: "이미 가입된 사용자입니다." });
+    }
+    await prisma.users.create({
+      data: { client_Id, name },
+    });
+  } else {
+    // email
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await prisma.users.findFirst({
+      where: {
+        email,
+      },
+    });
+
+    if (user) {
+      return res
+        .status(409)
+        .json({ errorMessage: "이미 존재하는 이메일입니다." });
+    }
+    await prisma.users.create({
+      data: { email, password: hashedPassword, name },
+    });
   }
-  if (password.length < 6) {
-    return res
-      .status(400)
-      .json({ errorMessage: "비밀번호는 최소 6자리 이상이어야 합니다." });
-  }
-  if (password !== pwCheck) {
-    return res
-      .status(401)
-      .json({ errorMessage: "비밀번호가 일치하지 않습니다." });
-  }
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await prisma.users.create({
-    data: { email, password: hashedPassword, name },
-  });
 
   return res.status(201).json({ email, name });
 });
 
 // 로그인 API
 router.post("/sign-in", async (req, res) => {
-  const { email, password } = req.body;
-  if (!email) {
-    return res.status(400).json({ message: "이메일을 입력해주세요." });
-  }
-  if (!password) {
-    return res.status(400).json({ message: "비밀번호를 입력해주세요." });
-  }
-  const user = await prisma.users.findFirst({ where: { email } });
+  const { client_Id, email, password } = req.body;
+  let user;
+  if (client_Id) {
+    // 카카오 로그인
+    user = await prisma.users.findFirst({ where: { client_Id } });
 
-  if (!user)
-    return res.status(404).json({ message: "존재하지 않는 이메일입니다." });
-  if (!(await bcrypt.compare(password, user.password)))
-    return res.status(401).json({ message: "비밀번호가 일치하지 않습니다." });
+    if (!user)
+      return res
+        .status(404)
+        .json({ message: "올바르지 않은 로그인 정보입니다." });
+  } else {
+    // 이메일 로그인
+    if (!email) {
+      return res.status(400).json({ message: "이메일을 입력해주세요." });
+    }
+    if (!password) {
+      return res.status(400).json({ message: "비밀번호를 입력해주세요." });
+    }
+    user = await prisma.users.findFirst({ where: { email } });
+
+    if (!user)
+      return res.status(404).json({ message: "존재하지 않는 이메일입니다." });
+    if (!(await bcrypt.compare(password, user.password)))
+      return res.status(401).json({ message: "비밀번호가 일치하지 않습니다." });
+  }
 
   const accessToken = jwt.sign(
     {
