@@ -5,10 +5,10 @@
 - DATABASE_NAME
 - DATABASE_USERNAME
 - DATABASE_PASSWORD
-- SESSION_SECRET_KEY
+- SECRET_KEY
 
 # API 명세서 URL
-https://www.notion.so/214ba977633a4fb88a5f1ab1e31d1b95?pvs=4
+[https://www.notion.so/214ba977633a4fb88a5f1ab1e31d1b95?pvs=4](https://wry-orangutan-bc4.notion.site/db70de841a7b4ad2b907df37663a79f9?v=f6cc9e199eab42d083bbf27bd1e8173e&pvs=4)
 
 # ERD URL
 https://www.erdcloud.com/d/k2SbAkeRER8GcXhmM
